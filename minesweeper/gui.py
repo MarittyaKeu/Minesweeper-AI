@@ -97,8 +97,8 @@ class GameWidget(QWidget):
         self.setLayout(self.grid_layout)
         self.grid_layout.setSpacing(1)
         self.grid_wgs = {}
-        for i in xrange(grid_height):
-            for j in xrange(grid_width):
+        for i in range(grid_height):
+            for j in range(grid_width):
                 self.grid_wgs[(i, j)] = FieldWidget()
                 self.grid_layout.addWidget(self.grid_wgs[(i, j)], i, j)
 
@@ -117,8 +117,8 @@ class GameWidget(QWidget):
     def update_grid(self):
         """Update grid according to info map."""
         info_map = self.ms_game.get_info_map()
-        for i in xrange(self.ms_game.board_height):
-            for j in xrange(self.ms_game.board_width):
+        for i in range(self.ms_game.board_height):
+            for j in range(self.ms_game.board_width):
                 self.grid_wgs[(i, j)].info_label(info_map[i, j])
 
         self.ctrl_wg.move_counter.display(self.ms_game.num_moves)
@@ -192,7 +192,7 @@ class FieldWidget(QLabel):
             0-8 is number of mines in srrounding.
             12 is a mine field.
         """
-        if indicator in xrange(1, 9):
+        if indicator in range(1, 9):
             self.id = indicator
             self.setPixmap(QtGui.QPixmap(NUMBER_PATHS[indicator]).scaled(
                     self.field_width, self.field_height))
