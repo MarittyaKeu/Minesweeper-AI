@@ -4,7 +4,7 @@ import random
 from msgame import MSGame
 
 class baseGeneticAlgorithm(object):
-    def __init__(self, boardWidth = 16, boardHeight = 30, bombs = 99, populationSize = 100, generationCount = 100, mutationRate = .05, crossoverRate = .75):
+    def __init__(self, boardWidth = 16, boardHeight = 30, bombs = 99, populationSize = 100, generationCount = 100, crossoverRate = .75, mutationRate = .05):
         self.boardWidth = boardWidth
         self.boardHeight = boardHeight
         self.bombs = bombs
@@ -33,18 +33,19 @@ class baseGeneticAlgorithm(object):
             ret.append(self.generateChromosome(boardSize, bombCount))
         return ret
         
-    def fitnessFunction(self, solution, game):
+    def fitnessFunction(self, solution):
         '''
         Need to implement:
             Takes in a particular solution string and a board to evaluate.
             determines fitness of solution and returns fitness values
         '''
+        game = copy.deepcopy(self.staticGame)
         return 0
         
     def getFitnessVals(self):
         ret = []
         for chromosome in self.population:
-            ret.append(self.fitnessFunction(chromosome, copy.deepcopy(self.staticGame)))
+            ret.append(self.fitnessFunction(chromosome))
         return ret
         
     def setMaxFitness(self):
@@ -53,15 +54,6 @@ class baseGeneticAlgorithm(object):
             Needs to set maximum fitness value according to whatever fitness algorithm is being used
         '''
         self.maxFitness = float('inf')
-        
-    def recombinationAlg(self, tupleList):
-        '''
-        Need to implement:
-            Takes in a list of tuples of form (chromosome, fitness).
-            returns a list of chromosomes representing the newly recombined pop
-        '''
-        pop, fitness = zip(*tupleList)
-        return pop
         
     def mutationAlg(self):
         '''
@@ -78,6 +70,40 @@ class baseGeneticAlgorithm(object):
                 maxVal = item[1]
         return maxChromosome
         
+    def parentSelection(self, sortedTuples):
+        '''
+        Need to implement:
+            Takes in list of tuples of form (chromosome, fitness)
+            returns tuple of form (parentChromosome1, parentChromosome2)
+        '''
+        return ((sortedTuples[0])[0], (sortedTuples[1])[0])
+        
+    def crossoverAlg(self, parents):
+        '''
+        Need to implement:
+            Takes in a tuple of form (parentChromosome1, parentChromosome2)
+            Returns a tuple of form (childChromsome1, childChromsome2)
+        '''
+        return parents
+        
+    def recombination(self, tupleList):
+        #Sort according to fitness
+        sortedTuples = sorted(tupleList, key=lambda item: item[1], reverse=True)
+        
+        childCount = int(self.crossoverRate * self.populationSize)
+        if childCount % 2 == 1:
+            childCount -= 1
+        children = []
+        for i in range(childCount / 2):
+            parents = self.parentSelection(sortedTuples)
+            newChildren = self.crossoverAlg(parents)
+            children.append(newChildren[0])
+            children.append(newChildren[1])
+        
+        # RIGHT NOW, SURVIVOR SELECTION ALWAYS CHOOSES MOST FIT
+        # MAY WANT TO IMPLEMENT SEPERATE ALGORITHMS IN FUTURE
+        return list(zip(*sortedTuples)[0])[:self.populationSize - childCount] + children
+        
     def runEpoch(self):
         finalChromosome = None
         for generation_idx in range(self.generationCount):
@@ -87,7 +113,7 @@ class baseGeneticAlgorithm(object):
             #print(popFitness)
             if self.maxFitness == max(fitnesses):
                 break
-            population = self.recombinationAlg(popFitness)
+            population = self.recombination(popFitness)
             self.mutationAlg()
         finalChromosome = self.getMaxChromosome(popFitness)
         return finalChromosome
