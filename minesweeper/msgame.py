@@ -5,7 +5,6 @@ Email : duguyue100@gmail.com
 """
 
 from __future__ import print_function
-import socket
 from msboard import MSBoard
 
 
@@ -46,16 +45,14 @@ class MSGame(object):
                              "number of grids!")
         else:
             self.num_mines = num_mines
-
-        self.TCP_PORT = port
-        self.TCP_IP = ip_add
+            
         self.BUFFER_SIZE = 1024
 
         self.move_types = ["click", "flag", "unflag", "question"]
 
         self.init_new_game()
 
-    def init_new_game(self, with_tcp=True):
+    def init_new_game(self, with_tcp=False):
         """Init a new game.
 
         Parameters
@@ -73,12 +70,6 @@ class MSGame(object):
         self.game_status = 2
         self.num_moves = 0
         self.move_history = []
-
-        if with_tcp is True:
-            # init TCP communication.
-            self.tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.tcp_socket.bind((self.TCP_IP, self.TCP_PORT))
-            self.tcp_socket.listen(1)
 
     def reset_game(self):
         """Reset game."""
@@ -171,15 +162,42 @@ class MSGame(object):
         # check the status, see if end the game
         if self.board.check_board() == 0:
             self.game_status = 0  # game loses
-            # self.print_board()
+            self.print_board()
             self.end_game()
         elif self.board.check_board() == 1:
             self.game_status = 1  # game wins
-            # self.print_board()
+            self.print_board()
             self.end_game()
         elif self.board.check_board() == 2:
             self.game_status = 2  # game continues
-            # self.print_board()
+            self.print_board()
+            
+    def qplay(self, move_type, move_x, move_y):
+        """Updat board by a given move.
+
+        Parameters
+        ----------
+        move_type : string
+            one of four move types:
+            "click", "flag", "unflag", "question"
+        move_x : int
+            X position of the move
+        move_y : int
+            Y position of the move
+        """
+
+        # play the move, update the board
+        if move_type == "click":
+            self.board.click_field(move_x, move_y)
+        elif move_type == "flag":
+            self.board.flag_field(move_x, move_y)
+        elif move_type == "unflag":
+            self.board.unflag_field(move_x, move_y)
+        elif move_type == "question":
+            self.board.question_field(move_x, move_y)
+
+        self.game_status = self.board.check_board()
+        return self.game_status
 
     def print_board(self):
         """Print board."""
@@ -203,7 +221,8 @@ class MSGame(object):
         TODO: some more expections..
         """
         if self.game_status == 0:
-            print("[MESSAGE] YOU LOSE!")
+            pass
+            #print("[MESSAGE] YOU LOSE!")
         elif self.game_status == 1:
             print("[MESSAGE] YOU WIN!")
 
@@ -239,40 +258,3 @@ class MSGame(object):
         """
         move_type, move_x, move_y = self.parse_move(move_msg)
         self.play_move(move_type, move_x, move_y)
-
-    def tcp_accept(self):
-        """Waiting for a TCP connection."""
-        self.conn, self.addr = self.tcp_socket.accept()
-        print("[MESSAGE] The connection is established at: ", self.addr)
-        self.tcp_send("> ")
-
-    def tcp_receive(self):
-        """Receive data from TCP port."""
-        data = self.conn.recv(self.BUFFER_SIZE)
-
-        if type(data) != str:
-            # Python 3 specific
-            data = data.decode("utf-8")
-
-        return str(data)
-
-    def tcp_send(self, data):
-        """Send data from TCP port."""
-        self.conn.send(data)
-
-    def tcp_close(self):
-        """Close Connection."""
-        self.conn.close()
-        self.tcp_accept()
-
-    def tcp_help(self):
-        """Help message for TCP interface."""
-        help_msg = "Welcome to Mine Sweeper! \n" + \
-                   "You have 5 types of moves to use: \n" + \
-                   "(1) Click\t: click: X, Y \n" + \
-                   "(2) Flag\t: flag: X, Y \n" + \
-                   "(3) Question\t: question: X, Y\n" + \
-                   "(4) Unflag\t: unflag: X, Y\n" + \
-                   "(5) Print board: print\n"
-
-        self.tcp_send(help_msg)
