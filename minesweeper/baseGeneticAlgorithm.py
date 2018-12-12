@@ -16,7 +16,7 @@ class baseGeneticAlgorithm(object):
         self.staticGame = MSGame(boardWidth, boardHeight, bombs)
         
         self.population = self.generatePopulation(populationSize, boardHeight * boardWidth, bombs)
-        self.maxFitness = float('inf')
+        self.setMaxFitness()
         
     def generateChromosome(self, boardSize, bombCount):
         ret = [0] * boardSize
@@ -47,6 +47,13 @@ class baseGeneticAlgorithm(object):
             ret.append(self.fitnessFunction(chromosome, copy.deepcopy(self.staticGame)))
         return ret
         
+    def setMaxFitness(self):
+        '''
+        Needs to be implemented:
+            Needs to set maximum fitness value according to whatever fitness algorithm is being used
+        '''
+        self.maxFitness = float('inf')
+        
     def recombinationAlg(self, tupleList):
         '''
         Need to implement:
@@ -68,9 +75,8 @@ class baseGeneticAlgorithm(object):
         for item in tupleList:
             if maxVal is None or maxVal < item[1]:
                 maxChromosome = item[0]
+                maxVal = item[1]
         return maxChromosome
-        
-        
         
     def runEpoch(self):
         finalChromosome = None
