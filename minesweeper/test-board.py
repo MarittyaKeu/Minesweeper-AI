@@ -5,7 +5,7 @@ Email : duguyue100@gmail.com
 """
 
 from __future__ import print_function
-from minesweeper.msgame import MSGame
+from msgame import MSGame
 
 game = MSGame(10, 10, 5)
 
