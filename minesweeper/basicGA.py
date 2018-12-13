@@ -8,7 +8,7 @@ WIN = 1
 CONTINUE = 2
 
 class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
-    def __init__(self, boardWidth = 5, boardHeight = 5, bombs = 2, populationSize = 100, generationCount = 100, crossoverRate = .75, mutationRate = .05):
+    def __init__(self, boardWidth = 5, boardHeight = 5, bombs = 10, populationSize = 100, generationCount = 100, crossoverRate = .75, mutationRate = .05):
         super(basicGA,self).__init__(boardWidth,boardHeight,bombs,populationSize,generationCount,crossoverRate,mutationRate)
 
     def fitnessFunction(self, solution):
@@ -40,8 +40,10 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
         score = 0
         x_cord = x_cord
         y_cord = y_cord
+        # GA.board = [0,1,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,0,0,0,0,0,1,1,0]
 
-        for node in solution:
+        num = (y_cord * self.boardWidth) + x_cord
+        for node in solution[num:]:
             if node == 1:
                 if node == self.board[y_cord][x_cord]:
                     score = score + 2
@@ -121,8 +123,6 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
                         (ch[0])[new_idx] = 1
                         (ch[0])[cur_idx] = 0
                         (ch[1])[i] = new_idx
-
-
 
 
 
