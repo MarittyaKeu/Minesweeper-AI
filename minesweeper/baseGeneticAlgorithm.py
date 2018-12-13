@@ -97,11 +97,11 @@ class baseGeneticAlgorithm(object):
         if childCount % 2 == 1:
             childCount -= 1
         children = []
-        for i in range(childCount // 2):
+        for i in range(childCount // 4):
             parents = self.parentSelection(sortedTuples)
             newChildren = self.crossoverAlg(parents)
-            children.append(newChildren[0])
-            children.append(newChildren[1])
+            children.append(copy.deepcopy(newChildren[0]))
+            children.append(copy.deepcopy(newChildren[1]))
         
         # RIGHT NOW, SURVIVOR SELECTION ALWAYS CHOOSES MOST FIT
         # MAY WANT TO IMPLEMENT SEPERATE ALGORITHMS IN FUTURE

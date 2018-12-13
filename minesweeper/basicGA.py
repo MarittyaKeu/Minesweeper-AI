@@ -68,7 +68,10 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
             returns tuple of form (parentChromosome1, parentChromosome2)
         '''
         parList = [] 
-        for i in range(5):
+        iters = self.populationSize // 20
+        if iters < 2:
+            iters = 2
+        for i in range(iters):
             parList.append(sortedTuples[random.randint(0,self.populationSize - 1)])
         parent1 = max(parList, key=lambda item:item[1])
         parList.remove(parent1)
@@ -81,12 +84,15 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
             Takes in a tuple of form (parentChromosome1, parentChromosome2)
             Returns a tuple of form (childChromsome1, childChromsome2)
         '''
-        pars = copy.copy(parents)
+        pars = copy.deepcopy(parents)
         parent1 = pars[0]
         parent2 = pars[1]
             
         usedPoints = set()
-        for i in range(self.bombs // 2):
+        iters = self.bombs // 2
+        if iters < 1:
+            iters = 1
+        for i in range(iters):
             crossPoint = random.randint(0, self.bombs - 1)
             while crossPoint in usedPoints:
                 crossPoint = random.randint(0, self.bombs - 1)
