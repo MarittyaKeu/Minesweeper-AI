@@ -18,12 +18,13 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
         for node in solution:
             if self.board[y_cord][x_cord] == 0 and node == 0:   # Node in chromosome matches the board
                 score = score + 1
-            elif self.board[y_cord][x_cord] == 1 and node == 1:   # Node in chromosome matches the board
+            if self.board[y_cord][x_cord] == 1 and node == 1:   # Node in chromosome matches the board
                 score = score + 2
             elif node == 0 and self.board[y_cord][x_cord] == 1:    # Mistakes empty tile for bomb tile - loss
-                return score + self.checkBombLocation(solution, x_cord, y_cord)    # If the string ends early, add correct bomb location guesses to the score
+                score = score - 10
+                # return score + self.checkBombLocation(solution, x_cord, y_cord) - 10    # If the string ends early, add correct bomb location guesses to the score
             elif node == 1 and self.board[y_cord][x_cord] == 0:   # Mistakes bomb tile for empty tile - minus 1pt
-                score = score - 1
+                score = score - 5
 
             # Iterates to the next coordinate on the board
             if x_cord < self.boardWidth - 1:
@@ -31,6 +32,7 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
             elif y_cord < self.boardHeight - 1:
                 x_cord = 0
                 y_cord = y_cord + 1
+
         return score
 
     def checkBombLocation(self, solution, x_cord, y_cord):
@@ -40,13 +42,14 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
         score = 0
         x_cord = x_cord
         y_cord = y_cord
-        # GA.board = [0,1,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,0,0,0,0,0,1,1,0]
 
         num = (y_cord * self.boardWidth) + x_cord
         for node in solution[num:]:
             if node == 1:
                 if node == self.board[y_cord][x_cord]:
                     score = score + 2
+                else:
+                    score = score - 5
             if x_cord < self.boardWidth - 1:
                 x_cord = x_cord + 1
             elif y_cord < self.boardHeight - 1:
@@ -60,7 +63,7 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
             2pts for every correct bomb guess
             -1pt for every incorrect flag
         """
-        self.maxFitness = self.boardHeight * self.boardWidth + self.bombs
+        self.maxFitness = (self.boardHeight * self.boardWidth) + self.bombs
 
     def parentSelection(self, sortedTuples):
         '''
@@ -123,7 +126,6 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
                         (ch[0])[new_idx] = 1
                         (ch[0])[cur_idx] = 0
                         (ch[1])[i] = new_idx
-
 
 
 if __name__ == '__main__':
