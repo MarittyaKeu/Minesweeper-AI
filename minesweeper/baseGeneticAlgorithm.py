@@ -4,7 +4,7 @@ import random
 from msgame import MSGame
 
 class baseGeneticAlgorithm(object):
-    def __init__(self, boardWidth = 5, boardHeight = 3, bombs = 9, populationSize = 10, generationCount = 10, mutationRate = .05, crossoverRate = .75):
+    def __init__(self, boardWidth = 5, boardHeight = 3, bombs = 4, populationSize = 10, generationCount = 10, mutationRate = .05, crossoverRate = .75):
         self.boardWidth = boardWidth
         self.boardHeight = boardHeight
         self.bombs = bombs
@@ -38,12 +38,11 @@ class baseGeneticAlgorithm(object):
         Need to implement:
             Takes in a particular solution string and a board to evaluate.
             determines fitness of solution and returns fitness values
+            If the solution guesses the correct
         '''
-        print ("Game Board", game.get_mine_map())
-        print ("Chromosome", solution)
-
         score, x_cord, y_cord = 0, 0, 0
         board = game.get_mine_map()
+
         for node in solution:
             if node == 0:
                 game.qplay("click", x_cord, y_cord)
@@ -53,7 +52,7 @@ class baseGeneticAlgorithm(object):
                     return score
             elif node == 1:
                 game.qplay("flag", x_cord, y_cord)
-                if board[x_cord][y_cord] == 1:
+                if board[y_cord][x_cord] == 1:
                     score = score + 1
                 else:
                     score = score - 1
@@ -63,6 +62,19 @@ class baseGeneticAlgorithm(object):
                 x_cord = 0
                 y_cord = y_cord + 1
 
+    def parentalSelection(self, fitPopulation):
+        while 1:
+            p1 = self.tournament(fitPopulation)
+            p2 = self.tournament(fitPopulation)
+            return (p1, p2)
+
+    def tournament(self, fitPopulation):
+        fit1, ch1 = fitPopulation[random.randint(0, len(fitPopulation) - 1)]
+        fit2, ch2 = fitPopulation[random.randint(0, len(fitPopulation) - 1)]
+        print ("FIT1", fit1)
+        print ("CH1", ch1)
+        print ("\n")
+        return ch1 if fit1 > fit2 else ch2
 
     def getFitnessVals(self):
         ret = []
@@ -109,9 +121,10 @@ class baseGeneticAlgorithm(object):
         for generation_idx in range(self.generationCount):
             fitnesses = self.getFitnessVals()
             print(fitnesses)
-            1/0
             popFitness = list(zip(self.population, fitnesses))
-            #print(popFitness)
+            # print(popFitness)
+            print ("RETURN STATEMENT: ", self.parentalSelection(popFitness))
+
             if self.maxFitness == max(fitnesses):
                 break
             population = self.recombinationAlg(popFitness)
