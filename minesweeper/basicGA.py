@@ -59,25 +59,37 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
             2pts for every correct bomb guess
             -1pt for every incorrect flag
         """
-        # self.maxFitness = self.boardHeight * self.boardWidth + self.bombs
-        self.maxFitness = self.bombs * 2
+        #self.maxFitness = self.boardHeight * self.boardWidth + self.bombs
+        #self.maxFitness = self.bombs * 2
+        self.maxFitness = WIN_SCORE
 
-    def parentSelection(self, sortedTuples):
+    def parentSelection(self):
         '''
         Need to implement:
             Takes in list of tuples of form (chromosome, fitness)
             returns tuple of form (parentChromosome1, parentChromosome2)
         '''
+        
         parList = [] 
-        iters = self.populationSize // 20
+        iters = self.populationSize // 10
         if iters < 2:
             iters = 2
         for i in range(iters):
-            parList.append(sortedTuples[random.randint(0,self.populationSize - 1)])
+            parList.append(self.popFitness[random.randint(0,self.populationSize - 1)])       
         parent1 = max(parList, key=lambda item:item[1])
-        parList.remove(parent1)
+        parList = []
+        for i in range(iters):
+            parList.append(self.popFitness[random.randint(0,self.populationSize - 1)]) 
         parent2 = max(parList, key=lambda item:item[1])
         return (parent1[0],parent2[0])
+        
+        '''
+        copiedList = copy.deepcopy(sortedTuples)
+        parent1 = max(copiedList, key=lambda item:item[1])
+        copiedList.remove(parent1)
+        parent2 = max(copiedList, key=lambda item:item[1])
+        '''
+        #return (parent1[0],parent2[0])
 
     def crossoverAlg(self, parents):
         '''
@@ -86,6 +98,7 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
             Returns a tuple of form (childChromsome1, childChromsome2)
         '''
         pars = copy.deepcopy(parents)
+        #pars1 = copy.deepcopy(parents)
         parent1 = pars[0]
         parent2 = pars[1]
 
@@ -94,41 +107,57 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
         if iters < 1:
             iters = 1
         for i in range(iters):
-            crossPoint = random.randint(0, self.bombs - 1)
-            while crossPoint in usedPoints:
-                crossPoint = random.randint(0, self.bombs - 1)
-            usedPoints.add(crossPoint)
+            crossPoint1 = random.randint(0, self.bombs - 1)
+            crossPoint2 = random.randint(0, self.bombs - 1)
+           
 
-            old_idx_1 = (parent1[1])[crossPoint]
-            old_idx_2 = (parent2[1])[crossPoint]
+            old_idx_1 = (parent1[1])[crossPoint1]
+            old_idx_2 = (parent2[1])[crossPoint2]
             if (parent1[0])[old_idx_2] == 0:
                 (parent1[0])[old_idx_1] = 0
-                (parent1[1])[crossPoint] = old_idx_2
+                (parent1[1])[crossPoint1] = old_idx_2
                 (parent1[0])[old_idx_2] = 1
 
             if (parent2[0])[old_idx_1] == 0:
                 (parent2[0])[old_idx_2] = 0
-                (parent2[1])[crossPoint] = old_idx_1
+                (parent2[1])[crossPoint2] = old_idx_1
                 (parent2[0])[old_idx_1] = 1
 
         return (parent1,parent2)
 
-    def mutationAlg(self):
+    def mutationAlg(self, children):
         '''
         Need to implement:
             Updates current population according in desired manner
         '''
 
-        threshhold = self.mutationRate * 100
-        for ch in self.population:
-            for i in range(len(ch[1])):
-                if random.randint(0,100) < threshhold:
-                    cur_idx = (ch[1])[i]
-                    new_idx = random.randint(0,len(ch[0]) - 1)
-                    if (ch[0])[new_idx] != 1:
-                        (ch[0])[new_idx] = 1
-                        (ch[0])[cur_idx] = 0
-                        (ch[1])[i] = new_idx
+        threshhold = self.mutationRate * 1000
+        for child in children:
+            for i in range(len(child[1])):
+                if random.randint(0,1000) < threshhold:
+                    cur_idx = (child[1])[i]
+                    new_idx = random.randint(0,len(child[0]) - 1)
+                    if (child[0])[new_idx] != 1:
+                        (child[0])[new_idx] = 1
+                        (child[0])[cur_idx] = 0
+                        (child[1])[i] = new_idx
+                        
+    def replacement(self, children):
+        child1 = children[0]
+        child2 = children[1]
+        
+        child1 = (child1, self.fitnessFunction(child1[0]))
+        child2 = (child2, self.fitnessFunction(child2[0]))
+        
+        min_el = min(self.popFitness, key=lambda item:item[1])
+        if min_el[1] < child1[1]:
+            min_idx = self.popFitness.index(min_el)
+            self.popFitness[min_idx] = child1
+        
+        min_el = min(self.popFitness, key=lambda item:item[1])
+        if min_el[1] < child2[1]:
+            min_idx = self.popFitness.index(min_el)
+            self.popFitness[min_idx] = child2
 
 
 

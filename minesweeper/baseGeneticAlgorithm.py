@@ -58,7 +58,7 @@ class baseGeneticAlgorithm(object):
         '''
         self.maxFitness = float('inf')
         
-    def mutationAlg(self):
+    def mutationAlg(self, children):
         '''
         Need to implement:
             Updates current population according in desired manner
@@ -89,6 +89,9 @@ class baseGeneticAlgorithm(object):
         '''
         return parents
         
+    def replacement(self, children):
+        pass
+        
     def recombination(self, tupleList):
         #Sort according to fitness
         sortedTuples = sorted(tupleList, key=lambda item: item[1], reverse=True)
@@ -111,16 +114,19 @@ class baseGeneticAlgorithm(object):
         
     def runEpoch(self):
         finalChromosome = None
+        fitnesses = self.getFitnessVals()
+        self.popFitness = list(zip(self.population, fitnesses))
         for generation_idx in range(self.generationCount):
-            fitnesses = self.getFitnessVals()
-            print(max(fitnesses))
-            popFitness = list(zip(self.population, fitnesses))
-            #print(popFitness)
-            if self.maxFitness == max(fitnesses):
+            for i in range(25):
+                parents = self.parentSelection()
+                children = self.crossoverAlg(parents)
+                self.mutationAlg(children)
+                self.replacement(children)                
+            max_fit = max(list(zip(*self.popFitness))[1])
+            print(max_fit)
+            if self.maxFitness == max_fit:
                 break
-            population = self.recombination(popFitness)
-            self.mutationAlg()
-        finalChromosome = self.getMaxChromosome(popFitness)
+        finalChromosome = self.getMaxChromosome(self.popFitness)
         return finalChromosome
             
 if __name__ == '__main__':
