@@ -20,12 +20,14 @@ class baseGeneticAlgorithm(object):
         
     def generateChromosome(self, boardSize, bombCount):
         ret = [0] * boardSize
+        bomb_idxs = []
         for i in range(bombCount):
             bomb_idx = random.randint(0, boardSize - 1)
             while ret[bomb_idx] == 1:
                 bomb_idx = random.randint(0, boardSize - 1)
             ret[bomb_idx] = 1
-        return ret
+            bomb_idxs.append(bomb_idx)
+        return (ret, bomb_idxs)
         
     def generatePopulation(self, popSize, boardSize, bombCount):
         ret = []
@@ -45,7 +47,7 @@ class baseGeneticAlgorithm(object):
     def getFitnessVals(self):
         ret = []
         for chromosome in self.population:
-            ret.append(self.fitnessFunction(chromosome))
+            ret.append(self.fitnessFunction(chromosome[0]))
         return ret
         
     def setMaxFitness(self):
@@ -68,7 +70,7 @@ class baseGeneticAlgorithm(object):
             if maxVal is None or maxVal < item[1]:
                 maxChromosome = item[0]
                 maxVal = item[1]
-        return maxChromosome
+        return maxChromosome[0]
         
     def parentSelection(self, sortedTuples):
         '''
@@ -94,7 +96,7 @@ class baseGeneticAlgorithm(object):
         if childCount % 2 == 1:
             childCount -= 1
         children = []
-        for i in range(childCount / 2):
+        for i in range(childCount // 2):
             parents = self.parentSelection(sortedTuples)
             newChildren = self.crossoverAlg(parents)
             children.append(newChildren[0])
@@ -102,7 +104,9 @@ class baseGeneticAlgorithm(object):
         
         # RIGHT NOW, SURVIVOR SELECTION ALWAYS CHOOSES MOST FIT
         # MAY WANT TO IMPLEMENT SEPERATE ALGORITHMS IN FUTURE
-        return list(zip(*sortedTuples)[0])[:self.populationSize - childCount] + children
+        x,y = (zip(*sortedTuples))
+        
+        return list(x)[:self.populationSize - childCount] + children
         
     def runEpoch(self):
         finalChromosome = None
