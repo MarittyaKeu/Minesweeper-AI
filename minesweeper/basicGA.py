@@ -12,34 +12,17 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
         super(basicGA,self).__init__(boardWidth,boardHeight,bombs,populationSize,generationCount,crossoverRate,mutationRate)
     
     def fitnessFunction(self, solution):
-        '''
-        game = copy.deepcopy(self.staticGame)
-        score = 0
-        idx = 0
-        #Am I accessing list elements efficiently???
-        for i in range(self.boardWidth):
-            for j in range(self.boardHeight):
-                if solution[idx]:
-                    status = game.qplay('flag', i, j)
-                else:
-                    status = game.qplay('click', i, j)
-                    score += 1
-                if status == LOSE:
-                    return score - 1
-                elif status == WIN:
-                    return self.maxFitness
-                else:
-                    idx += 1            
-        return 0
-        '''
         score, x_cord, y_cord = 0, 0, 0
 
+        # Iterates through solution and provides corresponding score
         for node in solution:
-            if node == self.board[y_cord][x_cord]:   # Node in chromosome matches the board
+            if self.board[y_cord][x_cord] == 0 and node == 0:   # Node in chromosome matches the board
                 score = score + 1
+            elif self.board[y_cord][x_cord] == 1 and node == 1:   # Node in chromosome matches the board
+                score = score + 2
             elif node == 0 and self.board[y_cord][x_cord] == 1:    # Mistakes empty tile for bomb tile - loss
-                return score
-            elif node == 1 and self.board[y_cord][x_cord] == 0:   # Mistakes bomb tile for empty tile - minue 1pt
+                return score + self.checkBombLocation(solution, x_cord, y_cord)    # If the string ends early, add correct bomb location guesses to the score
+            elif node == 1 and self.board[y_cord][x_cord] == 0:   # Mistakes bomb tile for empty tile - minus 1pt
                 score = score - 1
 
             # Iterates to the next coordinate on the board
@@ -49,9 +32,34 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
                 x_cord = 0
                 y_cord = y_cord + 1
         return score
-        
+
+    def checkBombLocation(self, solution, x_cord, y_cord):
+        """
+            Continues where the last iteration left off. +2pts for every correct bomb location
+        """
+        score = 0
+        x_cord = x_cord
+        y_cord = y_cord
+
+        num = (y_cord * self.boardWidth) + x_cord
+        for node in solution[num:]:
+            if node == 1:
+                if node == self.board[y_cord][x_cord]:
+                    score = score + 2
+            if x_cord < self.boardWidth - 1:
+                x_cord = x_cord + 1
+            elif y_cord < self.boardHeight - 1:
+                x_cord = 0
+                y_cord = y_cord + 1
+        return score
+
     def setMaxFitness(self):
-        self.maxFitness = self.boardHeight * self.boardWidth
+        """
+            1pt for correct empty tile guess
+            2pts for every correct bomb guess
+            -1pt for every incorrect flag
+        """
+        self.maxFitness = self.boardHeight * self.boardWidth + self.bombs
         
     def parentSelection(self, sortedTuples):
         '''
