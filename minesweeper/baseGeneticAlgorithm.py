@@ -33,53 +33,33 @@ class baseGeneticAlgorithm(object):
             ret.append(self.generateChromosome(boardSize, bombCount))
         return ret
 
-    def fitnessFunction(self, solution, game):
+    def fitnessFunction(self, solution, board):
         '''
         Need to implement:
             Takes in a particular solution string and a board to evaluate.
             determines fitness of solution and returns fitness values
-            If the solution guesses the correct
         '''
         score, x_cord, y_cord = 0, 0, 0
-        board = game.get_mine_map()
 
         for node in solution:
-            if node == 0:
-                game.qplay("click", x_cord, y_cord)
-                if game.game_status == 2:
-                    score = score + 1
-                elif game.game_status == 1 or game.game_status == 0:    # game will be over either on a win or loss
-                    return score
-            elif node == 1:
-                game.qplay("flag", x_cord, y_cord)
-                if board[y_cord][x_cord] == 1:
-                    score = score + 1
-                else:
-                    score = score - 1
+            if node == board[y_cord][x_cord]:   # Node in chromosome matches the board
+                score = score + 1
+            elif node == 0 and board[y_cord][x_cord] == 1:    # Mistakes empty tile for bomb tile - loss
+                return score
+            elif node == 1 and board[y_cord][x_cord] == 0:   # Mistakes bomb tile for empty tile - minue 1pt
+                score = score - 1
+
+            # Iterates to the next coordinate on the board
             if x_cord < self.boardWidth - 1:
                 x_cord = x_cord + 1
             elif y_cord < self.boardHeight - 1:
                 x_cord = 0
                 y_cord = y_cord + 1
 
-    def parentalSelection(self, fitPopulation):
-        while 1:
-            p1 = self.tournament(fitPopulation)
-            p2 = self.tournament(fitPopulation)
-            return (p1, p2)
-
-    def tournament(self, fitPopulation):
-        fit1, ch1 = fitPopulation[random.randint(0, len(fitPopulation) - 1)]
-        fit2, ch2 = fitPopulation[random.randint(0, len(fitPopulation) - 1)]
-        print ("FIT1", fit1)
-        print ("CH1", ch1)
-        print ("\n")
-        return ch1 if fit1 > fit2 else ch2
-
     def getFitnessVals(self):
         ret = []
         for chromosome in self.population:
-            ret.append(self.fitnessFunction(chromosome, copy.deepcopy(self.staticGame)))
+            ret.append(self.fitnessFunction(chromosome, self.staticGame.get_mine_map()))
         return ret
 
     def setMaxFitness(self):
@@ -91,6 +71,18 @@ class baseGeneticAlgorithm(object):
         #self.maxFitness = float('inf')
         self.maxFitness = self.boardWidth * self.boardHeight
         return self.maxFitness
+
+    def parentalSelection(self, fitPopulation):
+        while 1:
+            p1 = self.tournament(fitPopulation)
+            p2 = self.tournament(fitPopulation)
+            return (p1, p2)
+
+    def tournament(self, fitPopulation):
+        fit1, ch1 = fitPopulation[random.randint(0, len(fitPopulation) - 1)]
+        fit2, ch2 = fitPopulation[random.randint(0, len(fitPopulation) - 1)]
+
+        return ch1 if fit1 > fit2 else ch2
 
     def recombinationAlg(self, tupleList):
         '''
@@ -120,10 +112,12 @@ class baseGeneticAlgorithm(object):
         finalChromosome = None
         for generation_idx in range(self.generationCount):
             fitnesses = self.getFitnessVals()
+            print ("\n")
             print(fitnesses)
+            print ("\n")
+
+            1/0
             popFitness = list(zip(self.population, fitnesses))
-            # print(popFitness)
-            print ("RETURN STATEMENT: ", self.parentalSelection(popFitness))
 
             if self.maxFitness == max(fitnesses):
                 break
