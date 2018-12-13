@@ -51,6 +51,9 @@ class baseGeneticAlgorithm(object):
             ret.append(self.fitnessFunction(chromosome[0]))
         return ret
         
+    def getAvgFitnessValue(fitnesses):
+        return fitnesses / (boardWidth * boardHeight)
+        
     def setMaxFitness(self):
         '''
         Needs to be implemented:
@@ -113,6 +116,7 @@ class baseGeneticAlgorithm(object):
         finalChromosome = None
         for generation_idx in range(self.generationCount):
             fitnesses = self.getFitnessVals()
+            avg_fitness_value = self.getAvgFitnessValue(fitnesses)
             print(max(fitnesses))
             popFitness = list(zip(self.population, fitnesses))
             #print(popFitness)
