@@ -16,14 +16,15 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
 
         # Iterates through solution and provides corresponding score
         for node in solution:
-            # if self.board[y_cord][x_cord] == 0 and node == 0:   # Node in chromosome matches the board
-            #     score = score + 1
+            if self.board[y_cord][x_cord] == 0 and node == 0:   # Node in chromosome matches the board
+                score = score + 1
             if self.board[y_cord][x_cord] == 1 and node == 1:   # Node in chromosome matches the board
                 score = score + 2
             elif node == 0 and self.board[y_cord][x_cord] == 1:    # Mistakes empty tile for bomb tile - loss
-                return score + self.checkBombLocation(solution, x_cord, y_cord)    # If the string ends early, add correct bomb location guesses to the score
+                score = score - 10
+                # return score + self.checkBombLocation(solution, x_cord, y_cord) - 10    # If the string ends early, add correct bomb location guesses to the score
             elif node == 1 and self.board[y_cord][x_cord] == 0:   # Mistakes bomb tile for empty tile - minus 1pt
-                score = score - 1
+                score = score - 5
 
             # Iterates to the next coordinate on the board
             if x_cord < self.boardWidth - 1:
@@ -31,6 +32,7 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
             elif y_cord < self.boardHeight - 1:
                 x_cord = 0
                 y_cord = y_cord + 1
+
         return score
 
     def checkBombLocation(self, solution, x_cord, y_cord):
@@ -61,7 +63,7 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
         """
         #self.maxFitness = self.boardHeight * self.boardWidth + self.bombs
         #self.maxFitness = self.bombs * 2
-        self.maxFitness = WIN_SCORE
+        self.maxFitness = (self.boardHeight * self.boardWidth) + self.bombs
 
     def parentSelection(self):
         '''
