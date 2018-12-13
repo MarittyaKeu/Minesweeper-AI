@@ -12,6 +12,7 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
         super(basicGA,self).__init__(boardWidth,boardHeight,bombs,populationSize,generationCount,crossoverRate,mutationRate)
     
     def fitnessFunction(self, solution):
+        '''
         game = copy.deepcopy(self.staticGame)
         score = 0
         idx = 0
@@ -30,6 +31,24 @@ class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
                 else:
                     idx += 1            
         return 0
+        '''
+        score, x_cord, y_cord = 0, 0, 0
+
+        for node in solution:
+            if node == self.board[y_cord][x_cord]:   # Node in chromosome matches the board
+                score = score + 1
+            elif node == 0 and self.board[y_cord][x_cord] == 1:    # Mistakes empty tile for bomb tile - loss
+                return score
+            elif node == 1 and self.board[y_cord][x_cord] == 0:   # Mistakes bomb tile for empty tile - minue 1pt
+                score = score - 1
+
+            # Iterates to the next coordinate on the board
+            if x_cord < self.boardWidth - 1:
+                x_cord = x_cord + 1
+            elif y_cord < self.boardHeight - 1:
+                x_cord = 0
+                y_cord = y_cord + 1
+        return score
         
     def setMaxFitness(self):
         self.maxFitness = self.boardHeight * self.boardWidth

@@ -14,6 +14,7 @@ class baseGeneticAlgorithm(object):
         self.crossoverRate = crossoverRate
         
         self.staticGame = MSGame(boardWidth, boardHeight, bombs)
+        self.board = self.staticGame.get_mine_map()
         
         self.population = self.generatePopulation(populationSize, boardHeight * boardWidth, bombs)
         self.setMaxFitness()
@@ -112,7 +113,7 @@ class baseGeneticAlgorithm(object):
         finalChromosome = None
         for generation_idx in range(self.generationCount):
             fitnesses = self.getFitnessVals()
-            #print(fitnesses)
+            print(max(fitnesses))
             popFitness = list(zip(self.population, fitnesses))
             #print(popFitness)
             if self.maxFitness == max(fitnesses):
