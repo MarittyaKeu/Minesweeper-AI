@@ -8,7 +8,7 @@ WIN = 1
 CONTINUE = 2
 
 class basicGA(baseGeneticAlgorithm.baseGeneticAlgorithm):
-    def __init__(self, boardWidth = 5, boardHeight = 5, bombs = 10, populationSize = 100, generationCount = 100, crossoverRate = .75, mutationRate = .05):
+    def __init__(self, boardWidth = 5, boardHeight = 5, bombs = 10, populationSize = 100, generationCount = 100, crossoverRate = .75, mutationRate = .01):
         super(basicGA,self).__init__(boardWidth,boardHeight,bombs,populationSize,generationCount,crossoverRate,mutationRate)
 
     def fitnessFunction(self, solution):

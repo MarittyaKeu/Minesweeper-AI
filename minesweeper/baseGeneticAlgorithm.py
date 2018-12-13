@@ -126,11 +126,27 @@ class baseGeneticAlgorithm(object):
                 self.mutationAlg(children)
                 self.replacement(children)                
             max_fit = max(list(zip(*self.popFitness))[1])
-            print(max_fit)
+            #print(max_fit)
             if self.maxFitness == max_fit:
                 break
+        self.max_fit = max_fit
         finalChromosome = self.getMaxChromosome(self.popFitness)
         return finalChromosome
+        
+    def findSol(self):
+        sol = self.runEpoch()
+        x_cord, y_cord = 0, 0
+        for action in sol:
+            if action == 1:
+                self.staticGame.play_move('flag', x_cord, y_cord)
+            else:
+                self.staticGame.play_move('click', x_cord, y_cord)
+            
+            if x_cord < self.boardWidth - 1:
+                x_cord = x_cord + 1
+            elif y_cord < self.boardHeight - 1:
+                x_cord = 0
+                y_cord = y_cord + 1
             
 if __name__ == '__main__':
     random.seed(time.time())
