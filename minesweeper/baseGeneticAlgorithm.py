@@ -2,6 +2,7 @@ import copy
 import time
 import random
 from msgame import MSGame
+import matplotlib.pyplot as plt
 
 class baseGeneticAlgorithm(object):
     def __init__(self, boardWidth = 16, boardHeight = 30, bombs = 99, populationSize = 100, generationCount = 100, crossoverRate = .75, mutationRate = .05):
@@ -116,6 +117,8 @@ class baseGeneticAlgorithm(object):
         return list(x)[:self.populationSize - childCount] + children
         
     def runEpoch(self):
+        maxes = []
+        avgs = []
         finalChromosome = None
         fitnesses = self.getFitnessVals()
         self.popFitness = list(zip(self.population, fitnesses))
@@ -126,9 +129,22 @@ class baseGeneticAlgorithm(object):
                 self.mutationAlg(children)
                 self.replacement(children)                
             max_fit = max(list(zip(*self.popFitness))[1])
+            avg_fit = sum(list(zip(*self.popFitness))[1]) / self.populationSize
+            maxes.append(max_fit)
+            avgs.append(avg_fit)
             #print(max_fit)
             if self.maxFitness == max_fit:
                 break
+        plt.plot(range(len(maxes)),maxes)
+        plt.xlabel('Generation')
+        plt.ylabel('Max Fitness Score')
+        plt.title('Max Fitness of Generations on Expert Board')
+        plt.show()
+        plt.plot(range(len(avgs)),avgs)
+        plt.xlabel('Generation')
+        plt.ylabel('Average Fitness Score')
+        plt.title('Average Fitness of Generations on Expert Board')
+        plt.show()
         self.max_fit = max_fit
         finalChromosome = self.getMaxChromosome(self.popFitness)
         return finalChromosome
